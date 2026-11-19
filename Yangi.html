@@ -1,0 +1,415 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lemonSMP | Minecraft Server</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07110b;color:white;font-family:Arial,sans-serif}
+header{background:#10251a;padding:17px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:10;border-bottom:1px solid #285c38}
+.logo{font-size:24px;font-weight:bold;color:#65ff8c}
+nav a{color:white;text-decoration:none;margin:5px;font-size:14px}
+.hero{text-align:center;padding:75px 15px;background:linear-gradient(135deg,#102b1b,#07110b)}
+.hero h1{font-size:40px;color:#65ff8c}
+.hero p{margin:17px;color:#c5d8ca}
+button,.btn{background:#35c75b;color:#06130a;border:0;padding:12px 18px;border-radius:9px;font-weight:bold;cursor:pointer;text-decoration:none;display:inline-block;margin:5px}
+button:hover,.btn:hover{background:#75ff95}
+button:disabled{opacity:.55;cursor:not-allowed}
+section{padding:45px 16px;max-width:1100px;margin:auto}
+h2{text-align:center;color:#65ff8c;margin-bottom:25px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.card{background:#10251a;border:1px solid #285c38;border-radius:14px;padding:20px}
+.card h3{color:#69ff91;margin-bottom:12px}
+.card p{color:#c8d9cc;line-height:1.6}
+input{width:100%;padding:12px;margin:8px 0;background:#07110b;color:white;border:1px solid #39734a;border-radius:8px}
+footer{text-align:center;padding:25px;background:#10251a;color:#a8c5ad}
+.small{font-size:13px;color:#9db9a3}
+#chatButton{position:fixed;right:20px;bottom:20px;width:68px;height:68px;border-radius:50%;background:linear-gradient(145deg,#42f578,#138d3b);border:3px solid #a0ffb6;box-shadow:0 0 20px #35e66b88;display:flex;align-items:center;justify-content:center;font-size:32px;padding:0;z-index:20}
+#chatBox{display:none;position:fixed;right:15px;bottom:100px;width:min(350px,calc(100% - 30px));height:440px;background:#10251a;border:2px solid #42e875;border-radius:20px;z-index:20;overflow:hidden;box-shadow:0 0 25px #27d95b44}
+.chatHeader{padding:14px;background:linear-gradient(90deg,#14552c,#238b46);display:flex;align-items:center;justify-content:space-between}
+.botAvatar{width:38px;height:38px;border-radius:50%;background:#eaffef;color:#167c37;display:flex;align-items:center;justify-content:center;font-size:23px}
+#messages{height:320px;overflow-y:auto;padding:12px}
+.msg{background:#1c3927;padding:11px;border-radius:13px;margin:8px 0;line-height:1.4;overflow-wrap:anywhere}
+.user{background:#245d35;text-align:right}
+.chatInput{display:flex;padding:8px;gap:5px}
+.chatInput input{margin:0;min-width:0}
+.chatInput button{margin:0}
+
+#democraftFrame{display:none;position:fixed;inset:0;width:100%;height:100%;border:0;background:#18232b;z-index:99999}
+#democraftClose{display:none;position:fixed;z-index:100000;top:8px;right:8px;background:#b52e2e;color:white;border:2px solid white;border-radius:8px;padding:10px 14px;font-weight:bold}
+</style>
+</head>
+<body>\n<iframe id="democraftFrame" title="Democraft o‘yini" allow="fullscreen" allowfullscreen></iframe>\n<button id="democraftClose" onclick="closeDemocraft()">✕ SAYTGA QAYTISH</button>
+
+<header>
+ <div class="logo">⛏ lemonSMP</div>
+ <nav>
+  <a href="#home">Bosh sahifa</a>
+  <a href="#server">Server</a>
+  <a href="#games">O‘yinlar</a>
+  <a href="#mods">Modlar</a>
+  <a href="#help">Yordam</a>
+ </nav>
+</header>
+
+<div class="hero" id="home">
+ <h1>WELCOME TO LEMONSMP</h1>
+ <p>🍋 lemonSMP — survival, sarguzasht va do‘stlik olami!</p>
+ <h3>Server IP</h3>
+ <p id="ip">lemonsmp-play.play.jumphosting.cloud</p>
+ <button onclick="copyIP()">📋 IP nusxalash</button>
+ <p id="copyStatus"></p>
+ <h3 id="countdown">Server ochilishiga vaqt hisoblanmoqda...</h3>
+</div>
+
+<section id="server">
+ <h2>🌍 Server haqida</h2>
+ <div class="grid">
+  <div class="card"><h3>🟢 Survival</h3><p>Omon qol, uy qur, resurs yig‘ va rivojlan!</p></div>
+  <div class="card"><h3>🏘 Community</h3><p>Do‘stlar bilan suhbatlash va yangi tanishlar orttir.</p></div>
+  <div class="card"><h3>🗺 Adventure</h3><p>Yangi joylarni kashf et va sarguzashtlarga qo‘shil.</p></div>
+ </div>
+</section>
+
+<section>
+ <h2>📅 Ochilish marosimi</h2>
+ <div class="card" style="text-align:center">
+  <h3>2027-yil 1-yanvar</h3>
+  <p>Rejalashtirilgan vaqt: 09:00–22:00 (Toshkent vaqti)</p>
+  <p class="small">Serverning ishlashi hosting holatiga bog‘liq.</p>
+  <h3 id="openingMessage"></h3>
+ </div>
+</section>
+
+<section id="games">
+ <h2>🎮 Sherka Games</h2>
+ <div class="grid">
+  <div class="card" style="text-align:center">
+    <h3>⛏ Democraft</h3>
+    <p>SherkaCraft dunyosiga kirib, survival yoki creative rejimida o‘yna!</p>
+    <button onclick="openDemocraft()">▶ PLAY — O‘YINNI BOSHLASH</button>
+  </div>
+  </div>
+</section>
+
+<section id="mods">
+ <h2>🧩 Java modlar</h2>
+ <div class="grid">
+  <div class="card">
+   <h3>Sodium</h3>
+   <p>Minecraft Java grafik ishlashini optimallashtirish uchun.</p>
+   <a class="btn" href="https://modrinth.com/mod/sodium" target="_blank" rel="noopener">Yuklab olish</a>
+  </div>
+  <div class="card">
+   <h3>Simple Voice Chat</h3>
+   <p>O‘yin ichida ovozli suhbat. Serverda ham sozlanishi kerak.</p>
+   <a class="btn" href="https://modrinth.com/plugin/simple-voice-chat" target="_blank" rel="noopener">Yuklab olish</a>
+  </div>
+ </div>
+ <p class="small">Sodium Android GL4ES bilan ishlashi kafolatlanmaydi.</p>
+</section>
+
+<section>
+ <h2>📱 Minecraft yuklab olish</h2>
+ <div class="grid">
+  <div class="card"><h3>Windows</h3><p>Windows uchun Minecraft.</p><a class="btn" href="https://www.minecraft.net/download" target="_blank" rel="noopener">Yuklab olish</a></div>
+  <div class="card"><h3>Linux</h3><p>Minecraft Java Edition.</p><a class="btn" href="https://www.minecraft.net/download" target="_blank" rel="noopener">Yuklab olish</a></div>
+ </div>
+</section>
+
+<section id="help">
+ <h2>🛠 Yordam markazi</h2>
+ <div class="grid">
+   <div class="card"><h3>🍋 Serverga ulanish</h3><p>Java Edition orqali server manzilini kiriting. Server versiyasi va ulanish sozlamalari hostingda belgilangan versiyaga mos bo‘lishi kerak.</p></div>
+   <div class="card"><h3>📱 Android / Java</h3><p>Java o‘ynash uchun mos launcher, Java muhiti va server versiyasiga mos sozlamalardan foydalaning. FPS past bo‘lsa render distance va grafikani kamaytiring.</p></div>
+   <div class="card"><h3>⛔ Bedrock qo‘llab-quvvatlanmaydi</h3><p>Bu lemonSMP serveri Bedrock Edition’da ishlamaydi. Serverga Bedrock telefon yoki konsol versiyasidan ulanib bo‘lmaydi.</p></div>
+  </div>
+</section>
+
+<section>
+ <h2>📝 Serverga ro‘yxatdan o‘tish</h2>
+ <div class="card">
+  <input id="playerName" placeholder="Minecraft nickname">
+  <button onclick="registerPlayer()">Ro‘yxatdan o‘tish</button>
+  <p id="registerStatus"></p>
+  <h3>Ro‘yxatdan o‘tganlar</h3>
+  <div id="players"></div>
+  <p class="small">Bu ro‘yxat faqat shu brauzerda saqlanadi.</p>
+ </div>
+</section>
+
+<section>
+ <h2>📊 So‘rovnoma</h2>
+ <div class="card">
+  <h3>Serverda Anti-Cheat bo‘lsinmi?</h3>
+  <button onclick="vote('Ha')">Ha</button>
+  <button onclick="vote('Yo‘q')">Yo‘q</button>
+  <p id="voteResult"></p>
+  <p class="small">Ovozlar faqat shu qurilmada saqlanadi.</p>
+ </div>
+</section>
+
+<section>
+ <h2>👑 Server jamoasi</h2>
+ <div class="grid">
+  <div class="card"><h3>Creator</h3><p>Sherzod Qosimov</p></div>
+  <div class="card"><h3>Moderator</h3><p>SherkaCraft</p></div>
+  <div class="card"><h3>Contributor</h3><p>Jasur Olimov</p></div>
+  <div class="card"><h3>Contributor</h3><p>Inoyatov Inoyattillo</p></div>
+  <div class="card"><h3>Contributor</h3><p>Shavkatullayev Firdavs</p></div>
+ </div>
+</section>
+
+<footer>
+ <h3>lemonSMP © 2026</h3>
+ <p>lemonSMP lemonSMP server hamjamiyati</p>
+</footer>
+
+<button id="chatButton" onclick="toggleChat()" aria-label="Lemon AI chatini ochish">
+ <span class="botAvatar">🤖</span>
+</button>
+
+<div id="chatBox">
+ <div class="chatHeader">
+  <div style="display:flex;align-items:center;gap:10px">
+   <div class="botAvatar">🤖</div>
+   <div><b>Lemon AI</b><div class="small">lemonSMP yordamchisi</div></div>
+  </div>
+  <button style="margin:0;padding:6px 10px" onclick="toggleChat()">✖</button>
+ </div>
+ <div id="messages">
+  <div class="msg">Salom! 😊 Men Lemon AI yordamchisiman. Minecraft va server haqida savollaringni ber!</div>
+ </div>
+ <div class="chatInput">
+  <input id="chatText" placeholder="Savolingni yoz...">
+  <button onclick="sendMessage()">➤</button>
+ </div>
+</div>
+
+<script>
+function copyIP(){
+ const ip="lemonsmp-play.play.jumphosting.cloud";
+ if(navigator.clipboard && window.isSecureContext){
+  navigator.clipboard.writeText(ip).then(()=>{
+   document.getElementById("copyStatus").textContent="IP nusxalandi! ✅";
+  }).catch(()=>{document.getElementById("copyStatus").textContent=ip});
+ }else{
+  document.getElementById("copyStatus").textContent="Server IP: "+ip;
+ }
+}
+
+function updateCountdown(){
+ const target=new Date("2027-01-01T09:00:00+05:00").getTime();
+ const now=Date.now();
+ const diff=target-now;
+ const el=document.getElementById("countdown");
+ const msg=document.getElementById("openingMessage");
+ const end=new Date("2027-01-01T22:00:00+05:00").getTime();
+
+ if(now>=target && now<end){
+  el.textContent="🎉 LEMONSMP OCHILDI!";
+  msg.textContent="Bugun yangi tarix boshlanadi! Bu kunni uzoq kutdik. Endi birgalikda sarguzashtlar, do‘stlik va unutilmas xotiralar yaratamiz! ❤️";
+  return;
+ }
+ if(now>=end){
+  el.textContent="Ochilish marosimi yakunlandi.";
+  msg.textContent="lemonSMP tarixining ilk kuni uchun rahmat! ❤️";
+  return;
+ }
+ const d=Math.floor(diff/86400000);
+ const h=Math.floor(diff%86400000/3600000);
+ const m=Math.floor(diff%3600000/60000);
+ const s=Math.floor(diff%60000/1000);
+ el.textContent=`⏳ ${d} kun ${h} soat ${m} daqiqa ${s} soniya`;
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+function escapeHTML(s){
+ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function registerPlayer(){
+ const name=document.getElementById("playerName").value.trim();
+ if(!name)return alert("Nickname yoz!");
+ let players=JSON.parse(localStorage.getItem("players")||"[]");
+ if(players.includes(name))return alert("Bu nickname oldin kiritilgan!");
+ players.push(name);
+ localStorage.setItem("players",JSON.stringify(players));
+ document.getElementById("registerStatus").textContent="Muvaffaqiyatli! ✅";
+ document.getElementById("playerName").value="";
+ showPlayers();
+}
+function showPlayers(){
+ const players=JSON.parse(localStorage.getItem("players")||"[]");
+ document.getElementById("players").innerHTML=players.map(p=>"<p>👤 "+escapeHTML(p)+"</p>").join("");
+}
+showPlayers();
+
+function vote(answer){
+ if(localStorage.getItem("voted"))return alert("Siz allaqachon ovoz bergansiz!");
+ let v=JSON.parse(localStorage.getItem("votes")||'{"Ha":0,"Yo‘q":0}');
+ v[answer]++;
+ localStorage.setItem("votes",JSON.stringify(v));
+ localStorage.setItem("voted","yes");
+ showVotes();
+}
+function showVotes(){
+ let v=JSON.parse(localStorage.getItem("votes")||'{"Ha":0,"Yo‘q":0}');
+ document.getElementById("voteResult").textContent=`Ha: ${v.Ha} | Yo‘q: ${v["Yo‘q"]} | Jami: ${v.Ha+v["Yo‘q"]}`;
+}
+showVotes();
+
+function toggleChat(){
+ const box=document.getElementById("chatBox");
+ box.style.display=box.style.display==="block"?"none":"block";
+}
+function addMessage(text,type){
+ const div=document.createElement("div");
+ div.className="msg "+(type||"");
+ div.textContent=text;
+ const messages=document.getElementById("messages");
+ messages.appendChild(div);
+ messages.scrollTop=messages.scrollHeight;
+}
+function sherkaAI(question){
+ const q=question.toLowerCase().trim();
+ const has=(...words)=>words.some(w=>q.includes(w));
+ const exact=(...words)=>words.some(w=>q===w);
+
+ // Greetings and conversational basics
+ if(/^(salom|assalomu alaykum|assalom|hello|hi|hey|salomlar|qalaysan|qalesan)[!.? ]*$/.test(q))
+  return "Salom! 🍋 Men Lemon AI — lemonSMP serverining yordamchisiman. Server IP, ulanish, Minecraft Java, modlar, FPS, qoidalar va boshqa savollaringga javob beraman. Nima yordam kerak?";
+ if(has("rahmat","raxmat","tashakkur")) return "Arzimaydi! 🍋 lemonSMP'da omad! Yana savoling bo‘lsa yozaver.";
+ if(has("xayr","hayr","ko'rishguncha","ko‘rishguncha","bye")) return "Xayr! lemonSMP'da ko‘rishguncha! 🍋";
+ if(has("isming","kimsan","sen kimsan","nima deb chaqiray")) return "Men Lemon AI — lemonSMP saytiga o‘rnatilgan savol-javob yordamchisiman.";
+ if(has("nima qila olasan","yordam","help","imkoniyat")) return "Men lemonSMP IP manzili, serverga ulanish, Java/Bedrock farqi, Minecraft versiyasi, launcher, modlar, Fabric/Forge, FPS, ping, xatolar, xavfsizlik va server bo‘limlari haqida maslahat bera olaman.";
+
+ // Server identity, address and compatibility
+ if(has("bedrock","telefon versiya","pe versiya","pocket edition","konsol","playstation","xbox"))
+  return "⛔ Muhim: lemonSMP serveri Bedrock Edition’da ishlamaydi. Bedrock telefon, konsol yoki Windows Bedrock versiyasidan bu serverga ulanib bo‘lmaydi. Serverga Minecraft Java Edition orqali ulanish kerak.";
+ if(has("ip","server manzil","manzil","address","host","domen"))
+  return "🍋 lemonSMP server IP: lemonsmp-play.play.jumphosting.cloud\nServer manzilini Minecraft Java Edition’dagi Multiplayer → Add Server bo‘limiga kiriting.";
+ if(has("port","porti")) return "Server manzili: lemonsmp-play.play.jumphosting.cloud. Saytda alohida port ko‘rsatilmagan; hosting bergan ulanish ma’lumotidan foydalaning.";
+ if(has("qanday kir","qanaqa kir","ulanish","ulan","serverga kir","join","connect"))
+  return "Minecraft Java Edition'ni oching → Multiplayer → Add Server → Server Address joyiga lemonsmp-play.play.jumphosting.cloud yozing → Done → Join Server. Agar ulanmasa, o‘yin versiyasi va xato matnini yubor.";
+ if(has("server ochiqmi","ishlayaptimi","online","onlayn","server holati","server status"))
+  return "Men hozir hosting holatini bevosita tekshira olmayman. Minecraft Java Multiplayer bo‘limida serverga ulanishni sinab ko‘r. Ulanmasa, birozdan keyin qayta urin yoki administratorga murojaat qil.";
+ if(has("qachon och","ochilish","ochiladi")) return "Saytdagi reja bo‘yicha ochilish marosimi 2027-yil 1-yanvar, Toshkent vaqti bilan 09:00–22:00. Bu reja hostingning haqiqiy ish holatini kafolatlamaydi.";
+ if(has("24/7","24 7","doimiy ishl")) return "Serverning 24/7 ishlashi hosting tarifiga va sozlamalariga bog‘liq. Lemon AI hosting panelini ko‘ra olmaydi, shuning uchun doimiy ishlashini tasdiqlay olmaydi.";
+ if(has("egasi","owner","creator","asoschi","admin kim"))
+  return "Sayt ma’lumotiga ko‘ra Creator: Sherzod Qosimov. Moderator: SherkaCraft.";
+ if(has("moderator","mod kim","admin","administrator")) return "Saytda ko‘rsatilgan jamoa: Creator — Sherzod Qosimov; Moderator — SherkaCraft; Contributor — Jasur Olimov, Inoyatov Inoyattillo va Shavkatullayev Firdavs.";
+ if(has("qoid","rule","ban","mute","cheat","cheat","hack","xaker"))
+  return "Serverda halol o‘ynang: cheat va xakerlikdan foydalanmang, boshqa o‘yinchilarni haqorat qilmang, spam qilmang va qurilmalariga zarar yetkazmang. Rasmiy qoidalar administrator tomonidan e’lon qilinadi.";
+ if(has("survival")) return "Survival — resurs yig‘ish, uy qurish, ovqat topish, moblardan himoyalanish va dunyoda rivojlanish rejimi.";
+ if(has("creative","kreativ")) return "Creative rejimida qurilish va ijod qilish mumkin. lemonSMP'da qaysi rejimlar yoqilganini administrator belgilaydi.";
+ if(has("pvp","jang","urush")) return "PvP — o‘yinchilar o‘rtasidagi jang. Serverda PvP yoqilganmi yoki yo‘qmi, buni administrator tasdiqlashi kerak.";
+ if(has("spawn","boshlanish joyi")) return "Spawn — serverga kirganda paydo bo‘ladigan boshlang‘ich hudud. Uning koordinatalari yoki qoidalarini server administratoridan so‘rang.";
+ if(has("claim","region","grief","uyimni buz")) return "Claim — hududni himoyalash tizimi. lemonSMP'da qaysi himoya plagini borligi hozircha ko‘rsatilmagan; administrator yo‘riqnomasini tekshir.";
+
+ // Java, versions and launchers
+ if(has("java edition","minecraft java","java nima")) return "Minecraft Java Edition — asosan kompyuterlar uchun chiqarilgan Minecraft nashri. lemonSMP'ga Java Edition orqali ulanish kerak.";
+ if(has("versiya","version","1.21","1.20","1.19","1.18","1.16")) return "Serverning aniq Minecraft versiyasi sayt ma’lumotida ko‘rsatilmagan. Launcher'dagi versiyani hosting yoki administrator bergan server versiyasiga moslang.";
+ if(has("launcher","fold craft","foldcraft","pojav","horizon","prism","tlauncher"))
+  return "Launcher Minecraft Java'ni ishga tushiradi. Serverga kirish uchun launcher ichida server qo‘llaydigan Minecraft versiyasini tanlang. Bedrock launcher emas, Java Edition kerak.";
+ if(has("fabric")) return "Fabric — Minecraft Java uchun yengil mod loader. Modlarning barchasi aynan Minecraft versiyang va Fabric versiyangga mos bo‘lishi kerak.";
+ if(has("forge")) return "Forge — Minecraft Java uchun mod loader. Forge modlari odatda Fabric bilan ishlamaydi; loader va o‘yin versiyasi mos bo‘lishi shart.";
+ if(has("modrinth","curseforge")) return "Modlarni Modrinth yoki CurseForge kabi ishonchli manbalardan oling. Minecraft versiyasi va Fabric/Forge loader mosligini tekshiring.";
+ if(has("mod","mods","modlar","modpack")) return "Modlar Minecraft Java uchun qo‘shimcha imkoniyatlar beradi. Serverga kirishda mijozdagi modlar server talablariga zid kelmasligi kerak. Qaysi mod yoki xato ekanini yozsang, tekshirishga yordam beraman.";
+ if(has("sodium")) return "Sodium — Minecraft Java grafik ishlashini optimallashtiruvchi mod. U Fabric uchun; Minecraft versiyasi mos bo‘lishi kerak. Serverga ulanish uchun Sodium majburiy emas.";
+ if(has("optifine")) return "OptiFine grafik sozlamalari va ayrim optimizatsiyalarni beradi. U har bir yangi Minecraft versiyasi bilan mos bo‘lavermaydi.";
+ if(has("lithium")) return "Lithium Minecraft Java ichki ishlashini optimallashtiradi. Mod versiyasi Minecraft va Fabric versiyasiga mos bo‘lishi kerak.";
+ if(has("shader","shaders")) return "Shaderlar grafikani o‘zgartiradi, lekin FPSni pasaytirishi mumkin. Zaif qurilmada shaderlarni o‘chirib ko‘r.";
+ if(has("resource pack","texture pack","tekstura","resurs pak")) return "Resource pack tekstura va tovushlarni o‘zgartiradi. Uni Options → Resource Packs orqali yoqish mumkin.";
+ if(has("skin","skinni","teri")) return "Skin — o‘yinchi ko‘rinishi. Minecraft profilidagi skin sozlamasidan o‘zgartiriladi; server qoidalari bunga ta’sir qilishi mumkin.";
+
+ // Performance and connection
+ if(has("fps","lag","qot","sekin","optimiza","optimiz"))
+  return "FPSni yaxshilash uchun Render Distance'ni 4–6 chunkga tushir, Graphics'ni Fast qil, Smooth Lighting va shaderlarni o‘chir, keraksiz modlarni kamaytir va fon ilovalarini yoping. Telefon qizib ketsa tanaffus qiling.";
+ if(has("ping","kechikish","ms","internet","wi-fi","wifi","wifi"))
+  return "Ping internet va server joylashuviga bog‘liq. Barqaror Wi‑Fi ishlat, yuklab olishlarni to‘xtat, VPNni o‘chirib sinab ko‘r. Pingni men saytdan o‘lchay olmayman.";
+ if(has("timeout","timed out","connection refused","unknown host","can’t connect","cannot connect"))
+  return "Ulanish xatosida server manzilini aynan lemonsmp-play.play.jumphosting.cloud deb tekshir, internetni qayta ulang va Minecraft Java versiyasini tekshiring. Xato matnini to‘liq yuborsang, sababini aniqlashga yordam beraman.";
+ if(has("crash","crashyapti","ochilmayapti","xato","error"))
+  return "O‘yin xatosini aniqlash uchun xato matni yoki crash log kerak. Minecraft versiyasi, launcher, loader (Fabric/Forge) va xato qachon chiqishini yoz.";
+ if(has("ram","operativ","xotira")) return "Minecraft uchun ajratilgan RAM juda kam bo‘lsa crash bo‘lishi mumkin, juda ko‘p ajratish ham tizimni qiynaydi. Qurilmadagi bo‘sh xotiraga mos miqdor tanlang.";
+ if(has("render distance","chunk","chunks")) return "Render Distance ko‘rinadigan chunklar sonini belgilaydi. FPS uchun 4–8 oralig‘idan boshlang; yuqori qiymat ko‘proq resurs talab qiladi.";
+ if(has("java 17","java 21","java versiya")) return "Minecraft versiyasiga mos Java runtime tanlash kerak. Eski va yangi Minecraft versiyalari turli Java versiyalarini talab qilishi mumkin.";
+ if(has("voice chat","ovozli chat","mikrofon")) return "Simple Voice Chat kabi modlar uchun klient va server tomoni mos sozlangan bo‘lishi kerak. Serverda plugin/mod o‘rnatilganini administrator tasdiqlashi lozim.";
+
+ // General Minecraft gameplay knowledge
+ if(has("crafting","craft","retsept","recipe","qanday yas")) return "Crafting retsepti buyumga qarab farq qiladi. Buyum nomini yoz — kerakli ingredientlar va crafting joylashuvini tushuntiraman.";
+ if(has("diamond","olmos")) return "Olmos rudasi chuqur qatlamlarda uchraydi. Qazishda temir yoki undan kuchli kirka kerak; lava va g‘orlarda ehtiyot bo‘l.";
+ if(has("nether")) return "Nether — obsidian portal orqali kiriladigan xavfli o‘lcham. Olovga chidamlilik iksiri va yaxshi jihozlar foydali.";
+ if(has("ender dragon","ender dragon","dragon")) return "Ender Dragon — The End o‘lchamidagi asosiy boss. Unga tayyorlanish uchun yaxshi zirh, qurol, kamon, ovqat va bloklar olib boring.";
+ if(has("zombi","zombie","skelet","skeleton","creeper","mob")) return "Dushman moblar odatda qorong‘i joylarda paydo bo‘ladi. Hududni yoritish, qalqon va yaxshi zirh himoyaga yordam beradi.";
+ if(has("qishloq","villager","village","savdo")) return "Villagerlar ish bloklari orqali kasb oladi va emerald evaziga savdo qiladi. Ularni himoyalash uchun qishloqni yoritib, xavfsiz joy qiling.";
+ if(has("ench","enchant")) return "Enchanting Table va lapis lazuli yordamida asbob, qurol va zirhga sehr berish mumkin. Anvil orqali buyumlarni birlashtirish ham mumkin.";
+ if(has("potion","iksir","brew")) return "Iksirlar Brewing Stand yordamida tayyorlanadi. Retsept uchun suvli shisha, Nether Wart va kerakli ingredientlar ishlatiladi.";
+ if(has("redstone")) return "Redstone mexanizmlari signal orqali ishlaydi. Redstone dust, repeater, comparator, piston va lever bilan avtomatika qurish mumkin.";
+ if(has("elytra")) return "Elytra The End shaharlaridagi kemalarda topilishi mumkin. U bilan uchish uchun fireworks raketalari yordam beradi.";
+ if(has("minecraft nima","minecraft haqida")) return "Minecraft — bloklardan qurish, kashf qilish, resurs yig‘ish va omon qolishga asoslangan sandbox o‘yini. Java va Bedrock — alohida nashrlar.";
+
+ // Website functions
+ if(has("ro'yxat","ro‘yxat","registr","nickname","nick")) return "Saytdagi ro‘yxatdan o‘tish bo‘limiga Minecraft nicknamengni yozib, tugmani bos. Ro‘yxat faqat shu brauzerda saqlanadi.";
+ if(has("ovoz","so'rovnoma","so‘rovnoma","anti-cheat","anticheat")) return "Saytdagi so‘rovnomada Anti-Cheat bo‘yicha Ha yoki Yo‘q tugmasini bosib ovoz berishing mumkin. Ovozlar faqat shu qurilmada saqlanadi.";
+ if(has("democraft","o'yin","o‘yin")) return "Saytdagi Games bo‘limida Democraft o‘yini mavjud. O‘yin alohida oynada ochiladi.";
+ if(has("lemon","nomi","nima uchun")) return "Server nomi lemonSMP 🍋. SMP — Survival Multiplayer, ya’ni birgalikda survival o‘ynash degani.";
+ if(has("sayt","website")) return "Saytda server IP nusxalash, server haqida ma’lumot, o‘yinlar, Java modlar, yordam, ro‘yxatdan o‘tish va so‘rovnoma bo‘limlari bor.";
+
+ // Common small questions
+ if(has("qayerdan yukla","yuklab olish","download")) return "Minecraft'ni rasmiy Minecraft sayti yoki qurilmangdagi rasmiy do‘kondan oling. Noma’lum APK va soxta yuklab olish sahifalaridan ehtiyot bo‘l.";
+ if(has("bepul","free")) return "Minecraft rasmiy o‘yini odatda pullik. Bepul sinov yoki mavjud platforma imkoniyatlarini rasmiy saytdan tekshir.";
+ if(has("xavfsiz","virus","apk")) return "Noma’lum APK, mod va fayllarni o‘rnatish xavfli bo‘lishi mumkin. Faqat ishonchli manbalardan foydalan va fayllarni tekshir.";
+ if(has("discord")) return "Saytda Discord havolasi ko‘rsatilmagan. Rasmiy taklif havolasi bo‘lsa, uni server administratoridan ol.";
+ if(has("telegram")) return "Saytda Telegram havolasi ko‘rsatilmagan. Rasmiy guruh manzilini administrator tasdiqlashi kerak.";
+ if(has("kim yarat","kim qildi","yaratgan")) return "Sayt ma’lumotiga ko‘ra Creator — Sherzod Qosimov.";
+ if(has("😂","😃","🙂","😀")) return "😊🍋 Yana nimani bilmoqchisan? Server yoki Minecraft haqida savol ber.";
+
+ return "Bu savol bo‘yicha menda hozir aniq tayyor javob yo‘q. Men Lemon AI — saytda ishlaydigan offline yordamchiman, internetdagi barcha ma’lumotlarni avtomatik bilmayman. Savolingni boshqacharoq yoz yoki Minecraft versiyasi, qurilma va xato matnini qo‘sh. Server IP: lemonsmp-play.play.jumphosting.cloud. Bedrock Edition qo‘llab-quvvatlanmaydi.";
+}
+function sendMessage(){
+ const input=document.getElementById("chatText");
+ const q=input.value.trim();
+ if(!q)return;
+ addMessage(q,"user");
+ input.value="";
+ setTimeout(()=>addMessage(sherkaAI(q)),250);
+}
+document.getElementById("chatText").addEventListener("keydown",e=>{
+ if(e.key==="Enter")sendMessage();
+});
+</script>
+
+<script>
+const DEMOCRAFT_GZIP_BASE64 = "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";
+async function openDemocraft(){
+  const frame=document.getElementById("democraftFrame");
+  const close=document.getElementById("democraftClose");
+  try{
+    const raw=atob(DEMOCRAFT_GZIP_BASE64);
+    const bytes=new Uint8Array(raw.length);
+    for(let i=0;i<raw.length;i++) bytes[i]=raw.charCodeAt(i);
+    if(!("DecompressionStream" in window)) throw new Error("Brauzer gzip ochishni qo‘llamaydi");
+    const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+    const gameHTML=await new Response(stream).text();
+    frame.srcdoc=gameHTML;
+    frame.style.display="block";
+    close.style.display="block";
+    document.body.style.overflow="hidden";
+  }catch(err){
+    alert("Democraftni ochib bo‘lmadi: "+err.message+" . Chrome brauzerining yangiroq versiyasida ochib ko‘r.");
+  }
+}
+function closeDemocraft(){
+  const frame=document.getElementById("democraftFrame");
+  frame.srcdoc="";
+  frame.style.display="none";
+  document.getElementById("democraftClose").style.display="none";
+  document.body.style.overflow="";
+}
+</script>
+\n</body>
+</html>
